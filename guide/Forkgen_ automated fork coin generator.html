@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<!-- saved from url=(0025)https://forkgen.tech/flow -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Forkgen: automated fork coin generator</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="./Forkgen_ automated fork coin generator_files/test.css" rel="stylesheet">
+    <script src="./Forkgen_ automated fork coin generator_files/jquery.min.js.download"></script>
+  <script charset="utf-8" src="./Forkgen_ automated fork coin generator_files/button.dd024c345fc26f7c7a8d9938b67e5d3d.js.download"></script></head>
+  <body>
+    
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      <a class="navbar-brand" href="https://forkgen.tech/">Forkgen</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="https://forkgen.tech/">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="https://forkgen.tech/faq">FAQ</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="https://forkgen.tech/tos">Terms Of Service</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="https://forkgen.tech/exchange">Exchange Listing</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="https://forkgen.tech/flow">General Flow <span class="sr-only">(current)</span></a>
+          </li>
+          <li>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<iframe id="twitter-widget-0" scrolling="no" frameborder="0" allowtransparency="true" class="twitter-follow-button twitter-follow-button-rendered" style="position: static; visibility: visible; width: 135px; height: 20px;" title="Twitter Follow Button" src="./Forkgen_ automated fork coin generator_files/follow_button.2e9f365dae390394eb8d923cba8c5b11.en.html" data-screen-name="forkgentech"></iframe><script async="" src="./Forkgen_ automated fork coin generator_files/widgets.js.download" charset="utf-8"></script>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+
+    <div class="jumbotron">
+        <div class="container">
+            <h1 class="display-3">Fork Example</h1>
+            <p>After you fill in the parameters you want and click "Generate New Altcoin", you will see a page similar to this:</p>
+            <p><img src="./Forkgen_ automated fork coin generator_files/fork01.png"></p>
+            <p>After making absolutely sure there are no mistakes or anything, you send money to the given address. Once the payment has received enough confirmations, the page will automatically update and look something like this:</p>
+            <p><img src="./Forkgen_ automated fork coin generator_files/fork02.png"></p>
+            <p>You can (and probably should) write a password into the field and click update (<span style="font-weight: bold; background-color: #ff0; color: red;">warning: do not misplace this password; keep it simple if you have to, there is no way to recover it if you lose it</span>). There are currently no customization options for new forks, but in the future there may be. Once you're done, click on the "build page" link (blue text). This will take you to the actual build page:</p>
+            <p><img src="./Forkgen_ automated fork coin generator_files/fork03.png"></p>
+            <p>The fork will then be queued for generation, then it will be prepped and compiled. Once everything is finished, you can download each of the binary types (windows, mac, and linux) as well as the source code by clicking each of the blue links after "(platform) binaries compiled:" and "Created source tarball:".</p>
+            <p><img src="./Forkgen_ automated fork coin generator_files/fork04.png"></p>
+            <p>Once you have downloaded binaries and the source files, you can start the node up on a machine of your choice. Here, the linux binaries are used. Extract the files, then run the "daemon" binary:</p>
+            <p><img src="./Forkgen_ automated fork coin generator_files/fork05.png"></p>
+            <p>You can see how your fork is doing by checking the "debug.log" file in the data directory. The data directory differs depending on your operating system: for linux, it is in $HOME/.forkname directory; for macs, it is in $HOME/Application Support/Library/ForkName.</p>
+            <p><img src="./Forkgen_ automated fork coin generator_files/fork06.png"></p>
+            <p>Once you see </p><pre>*** FORKING ***</pre> in the log file, you know your fork has finally detached permanently from the Bitcoin eco system. You are on your own. Now it's time (unless you've done so already) to figure out how to make others interested in your fork. You may want to customize it to suit your needs, but be aware that forkgen (the service) only provides support up to the point where your fork is unmodified; once you start changing the code base, you are entirely on your own.<p></p>
+            <p>For starters, though, let's start generating blocks; to do so, we need at least ONE other peer. On some machine, start up a second instance of the fork, and then connect the two machines together. Here, for simplicity, we are connecting two nodes running on the same machine:</p><pre>$ mkdir "$HOME"/forkgencoin-2
+$ echo -n -e "port=10102\nrpcport=10103\nconnect=localhost\n" &gt; "$HOME"/forkgencoin-2/forkgencoin.conf
+$ ./forkgencoind -daemon -datadir="$HOME"/forkgencoin-2
+</pre><p></p>
+            <p>Check if we actually got a peer (if not, we will not be able to use the setgenerate command):</p><pre>$ ./forkgencoin-cli getconnectioncount
+1 &lt;-- if this says 0, something is wrong; go back up and try to make the nodes connect; you may wanna try ./forkgencoin-cli addnode IPNUMBER
+</pre><p></p>
+            <p>Now we enable block generation on the primary node using 2 CPU's:</p><pre>$ ./forkgencoin-cli setgenerate true 2
+</pre><p></p>
+            <p>Tailing the debug.log file should eventually (it may take awhile, sometimes hours) show us a bunch of new blocks being made:</p><pre>$ tail -f ~/forkgencoin-2/debug.log
+2019-02-15T13:27:41Z init message: Starting network threads...
+2019-02-15T13:27:41Z DNS seeding disabled
+2019-02-15T13:27:41Z net thread start
+2019-02-15T13:27:41Z init message: Done loading
+2019-02-15T13:27:41Z opencon thread start
+2019-02-15T13:27:41Z addcon thread start
+2019-02-15T13:27:41Z msghand thread start
+2019-02-15T13:27:41Z New outbound peer connected: version: 70015, blocks=1000, peer=0
+2019-02-15T13:27:41Z Leaving InitialBlockDownload (latching to false)
+2019-02-15T13:35:44Z UpdateTip: new best=000000009ed0bde3069d633855637315b8b005640f2d386d5706198b828f4a96 height=1001 version=0x20000000 log2_work=41.968689 tx=1021 date='2019-02-15T13:35:44Z' progress=1.000000 cache=0.0MiB(1txo)
+</pre>(here, a block was found after about 8 minutes, as you can see from the timestamps). Once you get this far, you have successfully created your own fork, with its own blocks. You should start seeing a balance increase after 100 blocks (the time to mature; read up on it if you don't know what that means).<p></p>
+            <p>Good luck. May the fork be with you!</p>
+        </div>
+    </div>
+  
+
+<iframe scrolling="no" frameborder="0" allowtransparency="true" src="./Forkgen_ automated fork coin generator_files/widget_iframe.2e9f365dae390394eb8d923cba8c5b11.html" title="Twitter settings iframe" style="display: none;"></iframe></body></html>
