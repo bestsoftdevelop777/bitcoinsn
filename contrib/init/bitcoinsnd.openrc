@@ -1,0 +1,92 @@
+#!/sbin/openrc-run
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/bitcoinsn/.bitcoinsn" ]; then
+	BITCOINSND_DEFAULT_DATADIR="/var/lib/bitcoinsn/.bitcoinsn"
+else
+	BITCOINSND_DEFAULT_DATADIR="/var/lib/bitcoinsnd"
+fi
+
+BITCOINSND_CONFIGFILE=${BITCOINSND_CONFIGFILE:-/etc/bitcoinsn/bitcoinsn.conf}
+BITCOINSND_PIDDIR=${BITCOINSND_PIDDIR:-/var/run/bitcoinsnd}
+BITCOINSND_PIDFILE=${BITCOINSND_PIDFILE:-${BITCOINSND_PIDDIR}/bitcoinsnd.pid}
+BITCOINSND_DATADIR=${BITCOINSND_DATADIR:-${BITCOINSND_DEFAULT_DATADIR}}
+BITCOINSND_USER=${BITCOINSND_USER:-${BITCOINSN_USER:-bitcoinsn}}
+BITCOINSND_GROUP=${BITCOINSND_GROUP:-bitcoinsn}
+BITCOINSND_BIN=${BITCOINSND_BIN:-/usr/bin/bitcoinsnd}
+BITCOINSND_NICE=${BITCOINSND_NICE:-${NICELEVEL:-0}}
+BITCOINSND_OPTS="${BITCOINSND_OPTS:-${BITCOINSN_OPTS}}"
+
+name="BitcoinSN Core Daemon"
+description="BitcoinSN cryptocurrency P2P network daemon"
+
+command="/usr/bin/bitcoinsnd"
+command_args="-pid=\"${BITCOINSND_PIDFILE}\" \
+		-conf=\"${BITCOINSND_CONFIGFILE}\" \
+		-datadir=\"${BITCOINSND_DATADIR}\" \
+		-daemon \
+		${BITCOINSND_OPTS}"
+
+required_files="${BITCOINSND_CONFIGFILE}"
+start_stop_daemon_args="-u ${BITCOINSND_USER} \
+			-N ${BITCOINSND_NICE} -w 2000"
+pidfile="${BITCOINSND_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${BITCOINSND_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${BITCOINSND_USER}:${BITCOINSND_GROUP}" \
+	"${BITCOINSND_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${BITCOINSND_USER}:${BITCOINSND_GROUP}" \
+	"${BITCOINSND_PIDDIR}"
+
+	checkpath -f \
+	-o ${BITCOINSND_USER}:${BITCOINSND_GROUP} \
+	-m 0660 \
+	${BITCOINSND_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${BITCOINSND_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run bitcoinsnd."
+		eerror "The setting must appear in ${BITCOINSND_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following "
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"BitcoinSN Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

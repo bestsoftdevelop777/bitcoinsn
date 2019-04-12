@@ -1,0 +1,33 @@
+# /etc/conf.d/bitcoinsnd: config file for /etc/init.d/bitcoinsnd
+
+# Config file location
+#BITCOINSND_CONFIGFILE="/etc/bitcoinsn/bitcoinsn.conf"
+
+# What directory to write pidfile to?  (created and owned by $BITCOINSND_USER)
+#BITCOINSND_PIDDIR="/var/run/bitcoinsnd"
+
+# What filename to give the pidfile
+#BITCOINSND_PIDFILE="${BITCOINSND_PIDDIR}/bitcoinsnd.pid"
+
+# Where to write bitcoinsnd data (be mindful that the blockchain is large)
+#BITCOINSND_DATADIR="/var/lib/bitcoinsnd"
+
+# User and group to own bitcoinsnd process
+#BITCOINSND_USER="bitcoinsn"
+#BITCOINSND_GROUP="bitcoinsn"
+
+# Path to bitcoinsnd executable
+#BITCOINSND_BIN="/usr/bin/bitcoinsnd"
+
+# Nice value to run bitcoinsnd under
+#BITCOINSND_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+#BITCOINSND_OPTS=""
+
+# The timeout in seconds OpenRC will wait for bitcoinsnd to terminate
+# after a SIGTERM has been raised.
+# Note that this will be mapped as argument to start-stop-daemon's
+# '--retry' option, which means you can specify a retry schedule
+# here. For more information see man 8 start-stop-daemon.
+BITCOINSND_SIGTERM_TIMEOUT=60
